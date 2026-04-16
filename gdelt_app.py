@@ -1,22 +1,14 @@
 import os
 import streamlit as st
 import pandas as pd
-import json
 from google.cloud import bigquery
 
-if "gcp_service_account" in st.secrets:
-    creds_info = st.secrets["gcp_service_account"]
-    if "credentials_json" in creds_info:
-        creds_dict = json.loads(creds_info["credentials_json"])
-        with open("/tmp/credentials.json", "w") as f:
-            json.dump(creds_dict, f)
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/credentials.json"
-    elif "credentials_path" in creds_info:
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_info["credentials_path"]
-else:
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
-        "/Users/kasperhansen/Desktop/Gdelt/keen-diode-493214-v8-d8b69dbc0a80.json"
-    )
+# Kør i terminal
+# /Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11 -m streamlit run /Users/kasperhansen/Desktop/Gdelt/gdelt_app.py
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
+    "/Users/kasperhansen/Desktop/Gdelt/Json/keen-diode-493214-v8-d8b69dbc0a80.json"
+)
 
 client = bigquery.Client(project="keen-diode-493214-v8")
 
