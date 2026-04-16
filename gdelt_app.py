@@ -3,12 +3,15 @@ import streamlit as st
 import pandas as pd
 from google.cloud import bigquery
 
-# Kør i terminal
-# /Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11 -m streamlit run /Users/kasperhansen/Desktop/Gdelt/gdelt_app.py
+# Streamlit Cloud eller lokal
+if "GOOGLE_APPLICATION_CREDENTIALS" in st.secrets:
+    creds_path = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+else:
+    creds_path = (
+        "/Users/kasperhansen/Desktop/Gdelt/Json/keen-diode-493214-v8-d8b69dbc0a80.json"
+    )
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
-    "/Users/kasperhansen/Desktop/Gdelt/Json/keen-diode-493214-v8-d8b69dbc0a80.json"
-)
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
 
 client = bigquery.Client(project="keen-diode-493214-v8")
 
