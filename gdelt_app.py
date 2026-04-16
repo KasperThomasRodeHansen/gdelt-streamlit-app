@@ -77,6 +77,12 @@ with st.spinner("Henter data..."):
     """
 
     df = client.query(query).to_dataframe(create_bqstorage_client=False)
+
+    if "Dato" in df.columns:
+        df["Dato"] = pd.to_datetime(df["Dato"], format="%Y%m%d%H%M%S").dt.strftime(
+            "%d-%m-%Y %H:%M"
+        )
+
     st.dataframe(df, use_container_width=True)
     st.success(f"Fandt {len(df)} rækker")
 
