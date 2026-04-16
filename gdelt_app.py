@@ -122,7 +122,6 @@ with st.spinner("Henter events..."):
 
     query_events = f"""
     SELECT 
-        Day as Dato,
         Actor1CountryCode as Land1,
         Actor2CountryCode as Land2,
         EventCode,
@@ -131,8 +130,8 @@ with st.spinner("Henter events..."):
     FROM `gdelt-bq.gdeltv2.events_partitioned`
     WHERE _PARTITIONDATE >= DATE_SUB(CURRENT_DATE(), INTERVAL {dage} DAY)
       AND Actor1CountryCode IS NOT NULL
-    GROUP BY Day, Actor1CountryCode, Actor2CountryCode, EventCode
-    ORDER BY Dato DESC, Samlet_Mentions DESC
+    GROUP BY Actor1CountryCode, Actor2CountryCode, EventCode
+    ORDER BY Samlet_Mentions DESC
     LIMIT 50
     """
 
@@ -140,14 +139,7 @@ with st.spinner("Henter events..."):
     df_events["Begivenhed"] = df_events["EventCode"].map(cameo_codes).fillna("Andet")
     st.dataframe(
         df_events[
-            [
-                "Dato",
-                "Land1",
-                "Land2",
-                "Begivenhed",
-                "Samlet_Mentions",
-                "Antal_Begivenheder",
-            ]
+            ["Land1", "Land2", "Begivenhed", "Samlet_Mentions", "Antal_Begivenheder"]
         ],
         use_container_width=True,
     )
