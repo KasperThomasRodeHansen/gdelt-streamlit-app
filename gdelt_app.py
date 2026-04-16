@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import json
 from google.cloud import bigquery
+from streamlit_extras.autorefresh import st_autorefresh
 
 if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in st.secrets:
     creds_dict = json.loads(st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
@@ -36,8 +37,18 @@ emne_filter = st.sidebar.multiselect(
 )
 
 dage = st.sidebar.slider("Antal dage tilbage", 1, 30, 7)
+auto_refresh = st.sidebar.selectbox(
+    "Auto-opdater", ["Fra", "1 minut", "5 minutter", "15 minutter"], index=0
+)
 
-if st.sidebar.button("🔄 Opdater Data"):
+if auto_refresh == "1 minut":
+    st_autorefresh(interval=60 * 1000, key="data_refresh")
+elif auto_refresh == "5 minutter":
+    st_autorefresh(interval=5 * 60 * 1000, key="data_refresh")
+elif auto_refresh == "15 minutter":
+    st_autorefresh(interval=15 * 60 * 1000, key="data_refresh")
+
+if st.sidebar.button("🔄 Opdater Nu"):
     st.rerun()
 
 st.header("📰 Økonomisk Politik - Artikler")
