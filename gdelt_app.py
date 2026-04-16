@@ -1,17 +1,18 @@
 import os
 import streamlit as st
 import pandas as pd
+import json
 from google.cloud import bigquery
 
-# Streamlit Cloud eller lokal
-if "GOOGLE_APPLICATION_CREDENTIALS" in st.secrets:
-    creds_path = st.secrets["GOOGLE_APPLICATION_CREDENTIALS"]
+if "GOOGLE_APPLICATION_CREDENTIALS_JSON" in st.secrets:
+    creds_dict = json.loads(st.secrets["GOOGLE_APPLICATION_CREDENTIALS_JSON"])
+    with open("/tmp/credentials.json", "w") as f:
+        json.dump(creds_dict, f)
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/tmp/credentials.json"
 else:
-    creds_path = (
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
         "/Users/kasperhansen/Desktop/Gdelt/Json/keen-diode-493214-v8-d8b69dbc0a80.json"
     )
-
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
 
 client = bigquery.Client(project="keen-diode-493214-v8")
 
@@ -119,7 +120,7 @@ with st.spinner("Henter events..."):
         SUM(CAST(NumMentions AS INT64)) as Samlet_Mentions,
         COUNT(*) as Antal_Begivenheder
     FROM `gdelt-bq.gdeltv2.events_partitioned`
-    WHERE _PARTITIONDATE >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL {dage} DAY)
+    WHERE _PARTITIONDATE >= DATE_SUB(CURRENT_DATE(), INTERVAL {dage} DAY)
       AND Actor1CountryCode IS NOT NULL
     GROUP BY Actor1CountryCode, Actor2CountryCode, EventCode
     ORDER BY Samlet_Mentions DESC
