@@ -130,7 +130,7 @@ with st.spinner("Henter events..."):
         "182": "Handelsrestriktioner",
     }
 
-query_events = f"""
+    query_events = f"""
     SELECT 
         Actor1CountryCode as Land1,
         Actor2CountryCode as Land2,
