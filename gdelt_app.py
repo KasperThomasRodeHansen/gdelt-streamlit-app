@@ -87,8 +87,12 @@ with st.spinner("Henter data..."):
     st.success(f"Fandt {len(df)} rækker")
 
 st.header("🌍 Seneste Begivenheder (Events)")
+from datetime import datetime, timedelta
+
+til_dato = datetime.now().strftime("%d-%m-%Y")
+fra_dato = (datetime.now() - timedelta(days=dage)).strftime("%d-%m-%Y")
 st.caption(
-    f"📅 Seneste {dage} dage | Opdateret: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    f"📅 {fra_dato} til {til_dato} | Opdateret: {pd.Timestamp.now().strftime('%d-%m-%Y %H:%M')}"
 )
 
 with st.spinner("Henter events..."):
