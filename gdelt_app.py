@@ -41,6 +41,9 @@ if st.sidebar.button("🔄 Opdater Data"):
     st.rerun()
 
 st.header("📰 Økonomisk Politik - Artikler")
+st.caption(
+    f"📅 Seneste {dage} dage | Opdateret: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
+)
 
 with st.spinner("Henter data..."):
     theme_filter = " OR ".join([f"V2Themes LIKE '%{e}%'" for e in emne_filter])
@@ -52,13 +55,15 @@ with st.spinner("Henter data..."):
         SPLIT(TRIM(SPLIT(V2Themes, ';')[OFFSET(0)]), ',')[OFFSET(0)] as Emne,
         SPLIT(V2Persons, ';')[OFFSET(0)] as Person,
         SPLIT(V2Organizations, ';')[OFFSET(0)] as Organisation,
-        DocumentIdentifier
+        DocumentIdentifier,
+        DATE as Dato
       FROM `gdelt-bq.gdeltv2.gkg_partitioned`
       WHERE _PARTITIONDATE >= DATE_SUB(CURRENT_DATE(), INTERVAL {dage} DAY)
         AND ({theme_filter})
         AND V2Locations IS NOT NULL
     )
     SELECT 
+        Dato,
         Land,
         Emne,
         Person,
@@ -66,8 +71,8 @@ with st.spinner("Henter data..."):
         COUNT(DISTINCT DocumentIdentifier) as Antal_Artikler
     FROM parsed
     WHERE Land IS NOT NULL AND Land != ''
-    GROUP BY Land, Emne, Person, Organisation
-    ORDER BY Antal_Artikler DESC
+    GROUP BY Dato, Land, Emne, Person, Organisation
+    ORDER BY Dato DESC, Antal_Artikler DESC
     LIMIT 100
     """
 
@@ -76,6 +81,9 @@ with st.spinner("Henter data..."):
     st.success(f"Fandt {len(df)} rækker")
 
 st.header("🌍 Seneste Begivenheder (Events)")
+st.caption(
+    f"📅 Seneste {dage} dage | Opdateret: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}"
+)
 
 with st.spinner("Henter events..."):
     cameo_codes = {
@@ -114,6 +122,7 @@ with st.spinner("Henter events..."):
 
     query_events = f"""
     SELECT 
+        Day as Dato,
         Actor1CountryCode as Land1,
         Actor2CountryCode as Land2,
         EventCode,
@@ -122,8 +131,8 @@ with st.spinner("Henter events..."):
     FROM `gdelt-bq.gdeltv2.events_partitioned`
     WHERE _PARTITIONDATE >= DATE_SUB(CURRENT_DATE(), INTERVAL {dage} DAY)
       AND Actor1CountryCode IS NOT NULL
-    GROUP BY Actor1CountryCode, Actor2CountryCode, EventCode
-    ORDER BY Samlet_Mentions DESC
+    GROUP BY Day, Actor1CountryCode, Actor2CountryCode, EventCode
+    ORDER BY Dato DESC, Samlet_Mentions DESC
     LIMIT 50
     """
 
@@ -131,7 +140,14 @@ with st.spinner("Henter events..."):
     df_events["Begivenhed"] = df_events["EventCode"].map(cameo_codes).fillna("Andet")
     st.dataframe(
         df_events[
-            ["Land1", "Land2", "Begivenhed", "Samlet_Mentions", "Antal_Begivenheder"]
+            [
+                "Dato",
+                "Land1",
+                "Land2",
+                "Begivenhed",
+                "Samlet_Mentions",
+                "Antal_Begivenheder",
+            ]
         ],
         use_container_width=True,
     )
