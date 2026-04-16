@@ -17,7 +17,7 @@ else:
 client = bigquery.Client(project="keen-diode-493214-v8")
 
 st.set_page_config(page_title="GDELT Økonomisk Politik", page_icon="📊")
-st.title("📊 GDELT - Økonomisk Politik Monitor")
+st.title("GDELT - Økonomisk Politik Monitor")
 
 st.sidebar.header("Indstillinger")
 emne_filter = st.sidebar.multiselect(
